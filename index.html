@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="auto">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vokabelarena</title>
+<style>
+:root{--bg:#f4f1ea;--card:#ffffff;--line:#e6e0d4;--btn:#efe9dd;--btnline:#ddd5c5;--text:#1f1f1f;--muted:#6f6a62;--blue:#2f6fe0;--bluesoft:#dce8fb;--green:#2f9a62;--greensoft:#dcf3e5;--red:#d64541;--redsoft:#fbe1df;--yellow:#d9a52b;--yellowsoft:#fdf0cf;--arena:#d0312d;--arenabg:#f6f7f8;--code:#ece6d8;--shadow:0 1px 3px rgba(0,0,0,.06)}
+html.dunkel{--bg:#1b1a18;--card:#262522;--line:#3a3833;--btn:#312f2b;--btnline:#45423c;--text:#f2efe8;--muted:#b0aa9f;--blue:#6b9cf5;--bluesoft:#24324a;--green:#5cc48d;--greensoft:#1f3a2b;--red:#ff7a72;--redsoft:#462624;--yellow:#e8bb4a;--yellowsoft:#45391c;--arena:#ff6b5f;--arenabg:#1e1f21;--code:#36332d;--shadow:0 1px 3px rgba(0,0,0,.4)}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:18px;line-height:1.45;min-height:100vh}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:760px;margin:0 auto;padding:12px 16px 48px}
+.folie{animation:rein .3s ease both}
+@keyframes rein{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.folie,.fliege,.wackeln{animation:none!important}}
+#s-start{background:var(--arenabg);min-height:100vh}
+.arena-kopf{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:22px 0 16px;border-bottom:1.5px solid var(--line);flex-wrap:wrap}
+.arena-logo{font-size:2rem;font-weight:800;letter-spacing:-.5px}
+.arena-logo span{color:var(--arena)}
+.arena-aktionen{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.chip-grau{background:var(--line);border-radius:999px;padding:8px 16px;font-size:.95rem}
+.pill-weiss{background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:8px 18px;font-weight:600;font-size:.95rem}
+.arena-titel{font-size:3rem;font-weight:800;letter-spacing:-1px;line-height:1.1;margin:30px 0 10px}
+.arena-sub{font-size:1.2rem;color:var(--muted);margin:0 0 26px;max-width:36em}
+.arena-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.arena-karte{display:flex;gap:16px;align-items:flex-start;text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:20px;transition:transform .12s,border-color .15s}
+.arena-karte:hover{border-color:var(--arena);transform:translateY(-2px)}
+.arena-karte:disabled{opacity:.45}
+.arena-karte svg{flex:0 0 44px;width:44px;height:44px;stroke:var(--arena);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.arena-karte strong{display:block;font-size:1.3rem;margin-bottom:4px}
+.arena-karte span{color:var(--muted);font-size:1rem}
+.leiste{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 0 12px}
+.app-name{font-weight:800;font-size:1.15rem}
+.chip-blau{background:var(--bluesoft);color:var(--blue);border-radius:999px;padding:4px 12px;font-size:.88rem;font-weight:600}
+.pill{background:var(--btn);border:1.5px solid var(--btnline);border-radius:12px;padding:7px 14px;font-weight:600;font-size:.95rem}
+.leiste .rechts{margin-left:auto;display:flex;gap:8px}
+.pfeil{width:40px;height:40px;padding:0;border-radius:999px;background:var(--card);border:1.5px solid var(--line);font-size:1.3rem;line-height:1}
+.karte{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:20px;margin-bottom:14px;box-shadow:var(--shadow)}
+.zentriert{text-align:center}
+.spielkopf{display:flex;align-items:center;gap:12px;margin:4px 0 10px;flex-wrap:wrap}
+.spielkopf h2{margin:0;font-size:1.4rem}
+.status{display:inline-block;background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:5px 14px;font-weight:700;font-size:.95rem;margin-bottom:12px}
+.leise{color:var(--muted);font-size:.95rem;margin:0 0 4px}
+.wort-gross{font-size:2rem;font-weight:800;margin:2px 0 12px;line-height:1.2}
+.antworten{display:grid;gap:10px}
+.antwort{background:var(--btn);border:1.5px solid var(--btnline);border-radius:12px;padding:14px;font-weight:700;font-size:1.1rem;transition:background .15s,border-color .15s}
+.antwort:hover:not(:disabled){border-color:var(--blue)}
+.antwort.richtig{background:var(--greensoft);border-color:var(--green)}
+.antwort.falsch{background:var(--redsoft);border-color:var(--red)}
+.antwort:disabled{cursor:default}
+.meldung{font-weight:700;min-height:1.5em;margin-top:10px}
+.ok{color:var(--green)}
+.bad{color:var(--red)}
+.btn-blau{background:var(--blue);color:#fff;border:none;border-radius:12px;padding:13px 22px;font-weight:700;font-size:1.05rem}
+.btn-blau:disabled{opacity:.45}
+.btn-hell{background:var(--btn);border:1.5px solid var(--btnline);border-radius:12px;padding:12px 18px;font-weight:600}
+.knopfreihe{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+textarea{width:100%;min-height:230px;font:inherit;font-size:1rem;line-height:1.6;padding:12px 14px;border-radius:14px;border:1.5px solid var(--btnline);background:var(--btn);color:var(--text);resize:vertical}
+code{background:var(--code);border-radius:6px;padding:1px 6px;font-size:.9em}
+.slot{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;min-height:58px;margin:8px 0}
+.slot span{min-width:42px;height:52px;padding:0 6px;border-bottom:3px solid var(--btnline);font-size:1.5rem;font-weight:800;display:flex;align-items:center;justify-content:center}
+.kacheln{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0}
+.kachel{width:54px;height:54px;font-size:1.5rem;font-weight:800;background:var(--btn);border:1.5px solid var(--btnline);border-radius:12px}
+.kachel:disabled{opacity:.25}
+.wortchip{background:var(--btn);border:1.5px solid var(--btnline);border-radius:12px;padding:10px 14px;font-weight:600;font-size:1.05rem}
+.wortchip:disabled{opacity:.25}
+.balken{height:14px;background:var(--line);border-radius:999px;overflow:hidden;margin:6px 0 2px}
+.balken div{height:100%;width:100%;background:var(--green);border-radius:999px}
+.fliegen{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.fliegenkarte{background:var(--card);border:1.5px solid var(--btnline);border-radius:16px;padding:16px 10px;font-weight:700;font-size:1.1rem;box-shadow:0 2px 4px rgba(0,0,0,.06);display:flex;flex-direction:column;align-items:center;gap:6px}
+.fliege{font-size:1.9rem;display:inline-block;animation:summen 1.1s ease-in-out infinite}
+@keyframes summen{0%{transform:translate(0,0) rotate(-8deg)}25%{transform:translate(3px,-3px) rotate(6deg)}50%{transform:translate(-2px,2px) rotate(-4deg)}75%{transform:translate(2px,1px) rotate(8deg)}100%{transform:translate(0,0) rotate(-8deg)}}
+.fliegenkarte.getroffen{background:var(--greensoft);border-color:var(--green)}
+.fliegenkarte.daneben{background:var(--redsoft);border-color:var(--red)}
+.wackeln{animation:wackeln .35s}
+@keyframes wackeln{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.tore-label{display:flex;justify-content:space-between;font-weight:700;font-size:.92rem;margin-bottom:6px}
+.platz{position:relative;height:150px;border-radius:14px;overflow:hidden;background:repeating-linear-gradient(90deg,#2e8b47 0 9.09%,#38a055 9.09% 18.18%);border:2px solid #24733a}
+.platz .mittellinie{position:absolute;left:50%;top:0;bottom:0;width:2px;background:rgba(255,255,255,.8)}
+.platz .kreis{position:absolute;left:50%;top:50%;width:64px;height:64px;border:2px solid rgba(255,255,255,.8);border-radius:50%;transform:translate(-50%,-50%)}
+.platz .tor{position:absolute;top:50%;width:16px;height:60px;transform:translateY(-50%);background:repeating-linear-gradient(45deg,rgba(255,255,255,.9) 0 2px,transparent 2px 6px),repeating-linear-gradient(-45deg,rgba(255,255,255,.9) 0 2px,transparent 2px 6px);border:2px solid #fff}
+.platz .tor.l{left:0;border-left:none}
+.platz .tor.r{right:0;border-right:none}
+.platz .punkte{position:absolute;left:8%;right:8%;bottom:12px;display:flex;justify-content:space-between}
+.platz .punkte i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.55)}
+.ball{position:absolute;top:50%;font-size:1.9rem;transform:translate(-50%,-50%);transition:left .55s cubic-bezier(.3,1.4,.5,1);z-index:2;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.raster{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;max-width:420px;margin:0 auto}
+.raster button{aspect-ratio:1;border-radius:10px;background:var(--btn);border:1.5px solid var(--btnline);font-size:1.3rem;padding:0}
+.raster button.treffer{background:var(--redsoft);border-color:var(--red)}
+.raster button.wasser{background:var(--bluesoft);border-color:var(--blue)}
+.raster button.gewaehlt{border-color:var(--blue);border-width:3px}
+.legende{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:.9rem;color:var(--muted);margin-bottom:4px}
+.brett{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0}
+.feld{position:relative;aspect-ratio:1;border-radius:12px;background:var(--card);border:1.5px solid var(--btnline);padding:6px 7px;font-size:.85rem;font-weight:700;text-align:left;line-height:1.2}
+.feld.start{background:var(--bluesoft);border-color:var(--blue)}
+.feld.ziel{background:var(--greensoft);border-color:var(--green)}
+.feld.bonus{background:var(--yellowsoft);border-color:var(--yellow)}
+.feld.falle{background:var(--redsoft);border-color:var(--red)}
+.feld .fx{display:block;font-size:.85rem;margin-top:2px}
+.figur{position:absolute;left:50%;bottom:10%;width:20px;height:20px;border-radius:50%;background:var(--blue);border:3px solid #fff;transform:translateX(-50%);box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.wuerfel{display:inline-flex;width:62px;height:62px;align-items:center;justify-content:center;background:var(--btn);border:1.5px solid var(--btnline);border-radius:14px;font-size:2rem;font-weight:800;margin:8px 0}
+.dran{display:flex;align-items:center;justify-content:center;gap:8px;font-weight:800;font-size:1.15rem}
+.dran i{width:16px;height:16px;border-radius:50%;background:var(--blue)}
+.fehlerchips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0}
+.fehlerchip{background:var(--redsoft);border:1.5px solid var(--red);border-radius:12px;padding:8px 12px;font-weight:600}
+.fehlerchip small{display:block;color:var(--muted);font-weight:500}
+.score{font-size:2.6rem;font-weight:800;margin:4px 0}
+.arena-intro{display:flex;gap:24px;align-items:center;justify-content:space-between}
+.qr-box{flex:0 0 auto;background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:14px;text-align:center;color:#1f1f1f;box-shadow:var(--shadow);margin-top:20px}
+.qr-box svg{display:block;width:210px;height:210px;margin:0 auto 8px}
+.qr-box strong{display:block;font-size:1.05rem}
+.qr-box span{font-size:.85rem;color:#6f6a62}
+@media (max-width:700px){.qr-box{display:none}}
+@media (max-width:560px){.arena-grid{grid-template-columns:1fr}.arena-titel{font-size:2.2rem}.arena-logo{font-size:1.6rem}.wort-gross{font-size:1.7rem}.platz{height:120px}}
+</style>
+</head>
+<body>
+
+<section id="s-start">
+  <div class="wrap">
+    <div class="arena-kopf">
+      <div class="arena-logo">Vokabel-<span>Arena</span></div>
+      <div class="arena-aktionen">
+        <span class="chip-grau" id="start-zahl">20 Vokabeln</span>
+        <button class="pill-weiss" id="start-liste" type="button">Vokabeln</button>
+        <button class="pill-weiss" data-theme-btn type="button">🌓 Auto</button>
+      </div>
+    </div>
+    <div class="arena-intro">
+      <div>
+        <h1 class="arena-titel">Welches Spiel heute?</h1>
+        <p class="arena-sub">Sechs Spiele, eine Vokabelliste. Trag oben deine eigenen Wörter ein, dann üben alle Spiele genau damit.</p>
+      </div>
+      <div class="qr-box">
+        <div id="qr"></div>
+        <strong>Scannen &amp; mitspielen</strong>
+        <span>Handy-Kamera auf den Code richten</span>
+      </div>
+    </div>
+    <div class="arena-grid" id="arena-grid"></div>
+  </div>
+</section>
+
+<section id="s-liste" hidden>
+  <div class="wrap">
+    <div class="leiste" id="leiste-liste"></div>
+    <div class="karte">
+      <h2 style="margin:0 0 6px">Deine Listen</h2>
+      <p class="leise">Alles wird nur in diesem Browser auf diesem Gerät gespeichert. Es wird nichts übertragen.</p>
+      <h3 style="margin:16px 0 6px">Vokabeln</h3>
+      <textarea id="txt-vok" spellcheck="false"></textarea>
+      <p class="leise">Eine pro Zeile: <code>fremdsprachiges Wort = deutsches Wort</code></p>
+      <p class="leise" id="vok-zahl"></p>
+      <h3 style="margin:16px 0 6px">Sätze (für Satzordnung)</h3>
+      <textarea id="txt-saetze" spellcheck="false" style="min-height:190px"></textarea>
+      <p class="leise">Ein ganzer Satz pro Zeile, mindestens zwei Wörter.</p>
+      <p class="leise" id="satz-zahl"></p>
+      <div class="knopfreihe" style="justify-content:flex-start">
+        <button class="btn-blau" id="fertig" type="button">✓ Fertig – zu den Spielen</button>
+        <button class="btn-hell" id="reset" type="button">Liste zurücksetzen</button>
+      </div>
+      <p class="meldung" id="liste-meldung"></p>
+    </div>
+  </div>
+</section>
+
+<section id="s-spiel" hidden>
+  <div class="wrap">
+    <div class="leiste" id="leiste-spiel"></div>
+    <div class="spielkopf">
+      <button class="pill" id="uebersicht" type="button">← Übersicht</button>
+      <h2 id="spiel-titel"></h2>
+    </div>
+    <div id="spiel-box"></div>
+  </div>
+</section>
+
+<script>
+/* LISTEN_VERSION: bei jeder neuen Kursliste hochzählen – dann ersetzt die neue Liste die gespeicherte auf allen Geräten */
+const LISTEN_VERSION = '2026-10-30-1';
+
+const START_VOKABELN = `el perro = der Hund
+el gato = die Katze
+la casa = das Haus
+el libro = das Buch
+la mesa = der Tisch
+la silla = der Stuhl
+la ventana = das Fenster
+la puerta = die Tür
+el coche = das Auto
+la playa = der Strand
+el agua = das Wasser
+la manzana = der Apfel
+el pan = das Brot
+la leche = die Milch
+el queso = der Käse
+la ciudad = die Stadt
+el pueblo = das Dorf
+la calle = die Straße
+la escuela = die Schule
+el profesor = der Lehrer
+la profesora = die Lehrerin
+el amigo = der Freund
+la amiga = die Freundin
+la madre = die Mutter
+el padre = der Vater
+el hermano = der Bruder
+la hermana = die Schwester
+el abuelo = der Großvater
+la abuela = die Großmutter
+el día = der Tag
+la noche = die Nacht
+la semana = die Woche
+el año = das Jahr
+el mar = das Meer
+la montaña = der Berg
+el árbol = der Baum
+la flor = die Blume
+el sol = die Sonne
+la luna = der Mond
+el tren = der Zug
+la estación = der Bahnhof
+el parque = der Park
+la tienda = das Geschäft
+el dinero = das Geld
+la camiseta = das T-Shirt
+el zapato = der Schuh
+la cabeza = der Kopf
+la mano = die Hand
+el cuaderno = das Heft
+el bolígrafo = der Kugelschreiber
+comer = essen
+beber = trinken
+hablar = sprechen
+vivir = wohnen
+escribir = schreiben
+leer = lesen
+grande = groß
+pequeño = klein
+hoy = heute
+mañana = morgen`;
+
+const START_SAETZE = `Me llamo Ana y vivo en Madrid.
+Mi hermano tiene un perro muy grande.
+Hoy vamos a la playa con mis amigos.
+¿Dónde está la estación de tren?
+Por la mañana bebo un café con leche.
+Los niños juegan en el parque.
+Me gusta mucho leer libros.
+El fin de semana visito a mis abuelos.`;
+
+/* QR-Code der festen Adresse (https://47mktm2hn6-droid.github.io/vokabelarena/) */
+const QR_MATRIX = '111111100101000000100110001111111,100000101110111001000010101000001,101110101011110101110110001011101,101110101100100100000100101011101,101110100000100101100001001011101,100000100001101011001010101000001,111111101010101010101010101111111,000000001000101000000011100000000,100000101101011101001000011001110,101111010001101100110101000011100,000001110110000100100010000010110,011100011111101010001001110111110,111110100110011111111000001100010,101110011011011011001001001101011,001001111101101000110000011011010,011110011001111100010010110000101,111110110110110011010010100110001,001011001110111111111001011001101,000100100111011100010111011101101,101001011001110001101010001011101,001000110000101010011001110111011,110100010111110010101111000111000,100010101010110110001100110011010,101101000110010000100000000111100,111011101000111110111000111110011,000000001101000110110100100010101,111111100110100110100011101010100,100000100011111100010001100011100,101110100001010100100100111111000,101110100010001011001101000111111,101110100111101010001000100111011,100000100111100110111000010111100,111111101010101001011001110100010';
+
+const KEY_V = 'vokabelarena-liste-v1', KEY_S = 'vokabelarena-saetze-v1', KEY_T = 'vokabelarena-theme2', KEY_VER = 'vokabelarena-version';
+const ORDNUNG = ['start', 'liste', 'spiel'];
+
+const ICONS = {
+  buchstaben: '<svg viewBox="0 0 44 44"><rect x="4" y="8" width="16" height="16" rx="4"/><line x1="9" y1="16" x2="15" y2="16"/><rect x="22" y="20" width="16" height="16" rx="4"/><line x1="27" y1="28" x2="33" y2="28"/></svg>',
+  fliegen: '<svg viewBox="0 0 44 44"><circle cx="18" cy="18" r="12"/><line x1="18" y1="12" x2="18" y2="24"/><line x1="12" y1="18" x2="24" y2="18"/><line x1="27" y1="27" x2="39" y2="39"/></svg>',
+  fussball: '<svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="17"/><polygon points="22,13 30,19 27,29 17,29 14,19"/></svg>',
+  schiffe: '<svg viewBox="0 0 44 44"><line x1="20" y1="6" x2="20" y2="28"/><polygon points="20,7 31,13 20,18"/><path d="M5 28 H39 L33 37 H11 Z"/></svg>',
+  brett: '<svg viewBox="0 0 44 44"><rect x="6" y="6" width="32" height="32" rx="6"/><circle cx="15" cy="15" r="2.4"/><circle cx="22" cy="22" r="2.4"/><circle cx="29" cy="29" r="2.4"/></svg>',
+  satz: '<svg viewBox="0 0 44 44"><path d="M6 8 H38 V30 H18 L10 37 V30 H6 Z"/><line x1="13" y1="16" x2="31" y2="16"/><line x1="13" y1="22" x2="25" y2="22"/></svg>'
+};
+
+const SPIELE = [
+  {id: 'buchstaben', es: 'Letras', emoji: '🔤', name: 'Buchstaben legen', kurz: 'Wort aus Buchstaben zusammensetzen', braucht: 'vok', fn: spielBuchstaben},
+  {id: 'fliegen', es: 'Matamoscas', emoji: '🪰', name: 'Fliegenklatsche', kurz: 'Richtiges Wort treffen, bevor die Zeit abläuft', braucht: 'vok2', fn: spielFliegen},
+  {id: 'fussball', es: 'Fútbol', emoji: '⚽', name: 'Fußball', kurz: 'Mit jeder richtigen Antwort näher ans Tor', braucht: 'vok2', fn: spielFussball},
+  {id: 'schiffe', es: 'Hundir la flota', emoji: '🚢', name: 'Schiffe versenken', kurz: 'Schiffe versenken mit Vokabelfragen', braucht: 'vok2', fn: spielSchiffe},
+  {id: 'brett', es: 'Juego de mesa', emoji: '🎲', name: 'Brettspiel', kurz: 'Würfeln, ziehen, Frage beantworten', braucht: 'vok2', fn: spielBrett},
+  {id: 'satz', es: 'Frases', emoji: '🧩', name: 'Satzordnung', kurz: 'Satz in die richtige Reihenfolge bringen', braucht: 'satz', fn: spielSatz}
+];
+
+let vokabeln = [], saetze = [], aktiveScreen = 'start', aktuellesSpiel = null, timers = [], aktiveTasten = null, themeModus = 'auto';
+
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function shuffle(a) { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; }
+function rundenListe(n, q) { return shuffle(q).slice(0, n); }
+function stopAlle() { timers.forEach(id => { clearInterval(id); clearTimeout(id); }); timers = []; aktiveTasten = null; }
+function optionen(e, n, feld) {
+  const set = [e[feld]];
+  for (const x of shuffle(vokabeln)) { if (set.length >= n) break; if (!set.includes(x[feld])) set.push(x[feld]); }
+  return shuffle(set);
+}
+function parseVokabeln(t) { const o = []; t.split(/\r?\n/).forEach(z => { const i = z.indexOf('='); if (i < 0) return; const f = z.slice(0, i).trim(), d = z.slice(i + 1).trim(); if (f && d) o.push({f, d}); }); return o; }
+function parseSaetze(t) { return t.split(/\r?\n/).map(s => s.trim()).filter(s => s.split(/\s+/).length >= 2); }
+function lies(k, fb) { try { const v = localStorage.getItem(k); return v === null ? fb : v; } catch (e) { return fb; } }
+function schreib(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+function entferne(k) { try { localStorage.removeItem(k); } catch (e) {} }
+function laden() {
+  if (lies(KEY_VER, '') !== LISTEN_VERSION) { entferne(KEY_V); entferne(KEY_S); schreib(KEY_VER, LISTEN_VERSION); }
+  vokabeln = parseVokabeln(lies(KEY_V, START_VOKABELN)); saetze = parseSaetze(lies(KEY_S, START_SAETZE));
+}
+function brauchtOk(s) { return s.braucht === 'satz' ? saetze.length > 0 : s.braucht === 'vok2' ? vokabeln.length >= 2 : vokabeln.length >= 1; }
+
+let frageQueue = [];
+function naechsteVokabel() {
+  if (!frageQueue.length || !vokabeln.includes(frageQueue[frageQueue.length - 1])) frageQueue = shuffle(vokabeln);
+  return frageQueue.pop();
+}
+function neueFrage(anzahl) {
+  const e = naechsteVokabel();
+  const zuDeutsch = Math.random() < 0.5;
+  return {e, zuDeutsch, prompt: zuDeutsch ? 'Was heißt das auf Deutsch?' : 'Wie heißt das in der Fremdsprache?',
+    wort: zuDeutsch ? e.f : e.d, loesung: zuDeutsch ? e.d : e.f, opts: optionen(e, anzahl, zuDeutsch ? 'd' : 'f'), antwort: null};
+}
+function frageHtml(q) {
+  return `<div class="karte zentriert">
+    <p class="leise">${q.prompt}</p>
+    <div class="wort-gross">${esc(q.wort)}</div>
+    <div class="antworten">${q.opts.map((o, n) => {
+      let cls = '';
+      if (q.antwort !== null) { if (o === q.loesung) cls = 'richtig'; else if (n === q.antwort) cls = 'falsch'; }
+      return `<button class="antwort ${cls}" type="button" data-n="${n}" ${q.antwort !== null ? 'disabled' : ''}>${esc(o)}</button>`;
+    }).join('')}</div>
+    ${q.antwort !== null ? `<p class="meldung">${q.opts[q.antwort] === q.loesung ? '<span class="ok">✓ Richtig!</span>' : `<span class="bad">✗ Leider falsch.</span> Richtig: ${esc(q.loesung)}`}</p>` : ''}
+  </div>`;
+}
+
+function leisteHtml() {
+  return `<span class="app-name">📚 Vokabeltrainer</span>
+    <span class="chip-blau">${vokabeln.length} Vokabeln · ${saetze.length} Sätze</span>
+    <div class="rechts">
+      <button class="pill" data-liste type="button">✏️ Liste</button>
+      <button class="pill" data-theme-btn type="button">🌓 Auto</button>
+      <button class="pfeil" data-pfeil="-1" type="button" aria-label="Zurück">‹</button>
+      <button class="pfeil" data-pfeil="1" type="button" aria-label="Weiter">›</button>
+    </div>`;
+}
+function kopf() {
+  document.getElementById('leiste-liste').innerHTML = leisteHtml();
+  document.getElementById('leiste-spiel').innerHTML = leisteHtml();
+  document.getElementById('start-zahl').textContent = vokabeln.length + ' Vokabeln';
+  zeigeThemeLabel();
+}
+function zeigeStart() {
+  document.getElementById('arena-grid').innerHTML = SPIELE.map(s =>
+    `<button class="arena-karte" type="button" data-id="${s.id}" ${brauchtOk(s) ? '' : 'disabled'}>${ICONS[s.id]}<div><strong>${esc(s.es)}</strong><span>${esc(s.kurz)}</span></div></button>`).join('');
+}
+function fuelleListe() {
+  document.getElementById('txt-vok').value = lies(KEY_V, START_VOKABELN);
+  document.getElementById('txt-saetze').value = lies(KEY_S, START_SAETZE);
+  zaehle();
+  document.getElementById('liste-meldung').textContent = '';
+}
+function zaehle() {
+  document.getElementById('vok-zahl').textContent = parseVokabeln(document.getElementById('txt-vok').value).length + ' Vokabeln erkannt.';
+  document.getElementById('satz-zahl').textContent = parseSaetze(document.getElementById('txt-saetze').value).length + ' Sätze erkannt.';
+}
+function zeige(name) {
+  if (aktiveScreen === 'spiel' && name !== 'spiel') { stopAlle(); document.getElementById('spiel-box').innerHTML = ''; }
+  aktiveScreen = name;
+  ORDNUNG.forEach(n => { const el = document.getElementById('s-' + n); el.hidden = n !== name; el.classList.toggle('folie', n === name); });
+  if (name === 'start') zeigeStart();
+  if (name === 'liste') fuelleListe();
+  window.scrollTo(0, 0);
+}
+function schritt(d) {
+  const neu = ORDNUNG[(ORDNUNG.indexOf(aktiveScreen) + d + ORDNUNG.length) % ORDNUNG.length];
+  zeige(neu);
+  if (neu === 'spiel') {
+    if (aktuellesSpiel) startSpiel(aktuellesSpiel.id);
+    else { document.getElementById('spiel-titel').textContent = ''; document.getElementById('spiel-box').innerHTML = '<div class="karte zentriert">Wähle zuerst ein Spiel auf der Startseite.</div>'; }
+  }
+}
+function startSpiel(id) {
+  const s = SPIELE.find(x => x.id === id);
+  aktuellesSpiel = s;
+  if (aktiveScreen !== 'spiel') zeige('spiel');
+  stopAlle();
+  document.getElementById('spiel-titel').textContent = s.emoji + ' ' + s.name;
+  const box = document.getElementById('spiel-box');
+  box.onclick = null;
+  if (!brauchtOk(s)) { box.innerHTML = '<div class="karte zentriert">Für dieses Spiel fehlen Einträge in der Liste.</div>'; return; }
+  s.fn(box, (p, g, f, z) => ergebnis(box, s, p, g, f, z));
+}
+function ergebnis(box, s, punkte, gesamt, fehler, zusatz) {
+  stopAlle();
+  box.onclick = null;
+  box.innerHTML = `<div class="karte zentriert">
+    <p class="leise">Ergebnis · ${esc(s.name)}</p>
+    <div class="score">${punkte} / ${gesamt}</div>
+    <p class="leise">richtig beantwortet</p>
+    ${zusatz ? `<p><strong>${esc(zusatz)}</strong></p>` : ''}
+    ${fehler.length ? `<h3 style="margin:18px 0 4px">Diese Wörter sitzen noch nicht</h3><div class="fehlerchips">${fehler.map(f => {
+      const i = f.indexOf(' = ');
+      return i < 0 ? `<div class="fehlerchip">${esc(f)}</div>` : `<div class="fehlerchip">${esc(f.slice(0, i))}<small>${esc(f.slice(i + 3))}</small></div>`;
+    }).join('')}</div>` : '<p class="ok"><strong>✓ Keine Fehler – stark!</strong></p>'}
+    <div class="knopfreihe"><button class="btn-blau" id="nochmal" type="button">Nochmal spielen</button><button class="btn-hell" id="zurueck" type="button">← Übersicht</button></div>
+  </div>`;
+  document.getElementById('nochmal').onclick = () => startSpiel(s.id);
+  document.getElementById('zurueck').onclick = () => zeige('start');
+}
+
+function spielBuchstaben(box, fertig) {
+  const runden = rundenListe(Math.min(10, vokabeln.length), vokabeln), ALPHA = 'abcdefghijklmnopqrstuvwxyz';
+  let i = 0, punkte = 0, ziel = '', kacheln = [], slot = [], gesperrt = false, fb = '';
+  const fehler = [];
+  function rendern() {
+    const e = runden[i];
+    box.innerHTML = `<span class="status">Runde ${i + 1}/${runden.length} · ✓ ${punkte}</span>
+      <div class="karte zentriert">
+        <p class="leise">Lege das Wort in der Fremdsprache:</p>
+        <div class="wort-gross">${esc(e.d)}</div>
+        <div class="slot">${ziel.split('').map((_, k) => `<span>${slot[k] !== undefined ? esc(kacheln[slot[k]].c) : ''}</span>`).join('')}</div>
+        <div class="kacheln">${kacheln.map((k, idx) => `<button class="kachel" type="button" data-idx="${idx}" ${k.used || gesperrt ? 'disabled' : ''}>${esc(k.c)}</button>`).join('')}</div>
+        <div class="knopfreihe">${gesperrt ? '<button class="btn-blau" id="weiter" type="button">Weiter</button>' : '<button class="btn-hell" id="loeschen" type="button">⌫ Löschen</button>'}</div>
+        <p class="meldung">${fb}</p>
+      </div>`;
+  }
+  function neueRunde() {
+    ziel = runden[i].f.replace(/\s+/g, '').toLowerCase();
+    const b = ziel.split(''), deko = [];
+    while (deko.length < 2) { const c = ALPHA[Math.floor(Math.random() * 26)]; if (!b.includes(c) && !deko.includes(c)) deko.push(c); }
+    kacheln = shuffle(b.concat(deko)).map(c => ({c, used: false}));
+    slot = []; gesperrt = false; fb = ''; rendern();
+  }
+  function tippe(idx) { if (gesperrt || kacheln[idx].used) return; kacheln[idx].used = true; slot.push(idx); if (slot.length === ziel.length) auswerten(); else rendern(); }
+  function loesche() { if (gesperrt || !slot.length) return; kacheln[slot.pop()].used = false; rendern(); }
+  function auswerten() {
+    gesperrt = true;
+    const e = runden[i];
+    if (slot.map(k => kacheln[k].c).join('') === ziel) { punkte++; fb = '<span class="ok">✓ Richtig!</span>'; }
+    else { fehler.push(e.f + ' = ' + e.d); fb = `<span class="bad">✗ Leider falsch.</span> Richtig: ${esc(e.f)}`; }
+    rendern();
+  }
+  function weiter() { i++; if (i >= runden.length) fertig(punkte, runden.length, fehler); else neueRunde(); }
+  box.onclick = ev => {
+    const k = ev.target.closest('.kachel'); if (k) return tippe(+k.dataset.idx);
+    if (ev.target.closest('#loeschen')) return loesche();
+    if (ev.target.closest('#weiter')) weiter();
+  };
+  aktiveTasten = ev => {
+    if (gesperrt) { if (ev.key === 'Enter') weiter(); return; }
+    if (ev.key === 'Backspace') { ev.preventDefault(); return loesche(); }
+    if (ev.key && ev.key.length === 1) { const idx = kacheln.findIndex(k => !k.used && k.c === ev.key.toLowerCase()); if (idx >= 0) tippe(idx); }
+  };
+  neueRunde();
+}
+
+function spielFliegen(box, fertig) {
+  const runden = rundenListe(Math.min(10, vokabeln.length), vokabeln), ZEIT = 7000;
+  let i = 0, punkte = 0, opts = [], gesperrt = false;
+  const fehler = [];
+  function neueRunde() {
+    const e = runden[i];
+    opts = optionen(e, 6, 'f'); gesperrt = false;
+    box.innerHTML = `<span class="status">Runde ${i + 1}/${runden.length} · 💥 ${punkte}</span>
+      <div class="karte zentriert">
+        <p class="leise">Klatsch die richtige Übersetzung!</p>
+        <div class="wort-gross">${esc(e.d)}</div>
+        <div class="balken"><div id="fill"></div></div>
+      </div>
+      <div class="fliegen">${opts.map((o, k) => {
+        const dreh = (Math.random() * 4 - 2).toFixed(1), delay = (Math.random()).toFixed(2);
+        return `<button class="fliegenkarte" type="button" data-k="${k}" style="transform:rotate(${dreh}deg)"><span class="fliege" style="animation-delay:-${delay}s">🪰</span>${esc(o)}</button>`;
+      }).join('')}</div>
+      <p class="meldung zentriert" id="fb"></p>`;
+    const fill = document.getElementById('fill'), start = Date.now();
+    timers.push(setInterval(() => {
+      const r = Math.max(0, 1 - (Date.now() - start) / ZEIT);
+      fill.style.width = (r * 100) + '%';
+      fill.style.background = r < 0.2 ? 'var(--red)' : 'var(--green)';
+      if (r <= 0) auswerten(-1);
+    }, 50));
+  }
+  function auswerten(k) {
+    if (gesperrt) return;
+    gesperrt = true; stopAlle();
+    const e = runden[i], ok = k >= 0 && opts[k] === e.f;
+    if (ok) punkte++; else fehler.push(e.f + ' = ' + e.d);
+    box.querySelectorAll('.fliegenkarte').forEach((b, n) => {
+      b.disabled = true;
+      const fl = b.querySelector('.fliege');
+      if (opts[n] === e.f) { b.classList.add('getroffen'); fl.textContent = '💥'; fl.style.animation = 'none'; }
+      else if (n === k) { b.classList.add('daneben', 'wackeln'); }
+    });
+    document.getElementById('fb').innerHTML = ok ? '<span class="ok">💥 Treffer!</span>' : k < 0 ? '<span class="bad">⏱ Zu langsam!</span>' : '<span class="bad">✗ Daneben!</span>';
+    timers.push(setTimeout(() => { i++; if (i >= runden.length) fertig(punkte, runden.length, fehler); else neueRunde(); }, 1300));
+  }
+  box.onclick = ev => { const b = ev.target.closest('.fliegenkarte'); if (b && !gesperrt) auswerten(+b.dataset.k); };
+  neueRunde();
+}
+
+function spielFussball(box, fertig) {
+  const MAXF = 20;
+  let pos = 5, tore = 0, eigen = 0, richtig = 0, falsch = 0, fragen = 0, q = null, info = '';
+  const fehler = [];
+  function platz() {
+    return `<div class="tore-label"><span>⬅️ Dein Tor</span><span>Gegnerisches Tor ➡️</span></div>
+      <div class="platz"><div class="mittellinie"></div><div class="kreis"></div><div class="tor l"></div><div class="tor r"></div>
+      <div class="punkte">${'<i></i>'.repeat(9)}</div><div class="ball" id="ball" style="left:${4 + pos * 9.2}%">⚽</div></div>`;
+  }
+  function ansicht() {
+    box.innerHTML = `<span class="status">✓ ${richtig} · ✗ ${falsch} · ${tore}:${eigen} · noch ${10 - pos} bis zum Tor</span>
+      <div class="karte">${platz()}${info ? `<p class="meldung zentriert">${info}</p>` : ''}</div>
+      ${frageHtml(q)}
+      ${q.antwort !== null ? '<div class="knopfreihe"><button class="btn-blau" id="weiter" type="button">Weiter</button></div>' : ''}`;
+  }
+  function neueRunde() { q = neueFrage(4); info = ''; ansicht(); }
+  function antwort(n) {
+    q.antwort = n; fragen++;
+    const ok = q.opts[n] === q.loesung;
+    if (ok) { richtig++; pos++; } else { falsch++; pos--; fehler.push(q.e.f + ' = ' + q.e.d); }
+    if (pos >= 10) { tore++; info = '<span class="ok">⚽ TOR!</span>'; }
+    else if (pos <= 0) { eigen++; info = '<span class="bad">😱 Eigentor!</span>'; }
+    ansicht();
+    if (pos >= 10 || pos <= 0) timers.push(setTimeout(() => { pos = 5; const b = document.getElementById('ball'); if (b) b.style.left = (4 + pos * 9.2) + '%'; }, 900));
+  }
+  function weiter() {
+    if (pos >= 10 || pos <= 0) pos = 5;
+    if (tore >= 2 || eigen >= 2 || fragen >= MAXF) return fertig(richtig, fragen, fehler, `Endstand ${tore}:${eigen}`);
+    neueRunde();
+  }
+  box.onclick = ev => {
+    const b = ev.target.closest('.antwort'); if (b && q.antwort === null) return antwort(+b.dataset.n);
+    if (ev.target.closest('#weiter')) weiter();
+  };
+  neueRunde();
+}
+
+function spielSchiffe(box, fertig) {
+  const FELDER = 36, SCHIFFE = 8;
+  const schiffe = new Set(shuffle([...Array(FELDER).keys()]).slice(0, SCHIFFE));
+  const auf = new Map();
+  let treffer = 0, schuesse = 0, richtig = 0, gesamt = 0, ziel = null, q = null, info = 'Wähle ein Feld. Geschossen wird erst, wenn die Frage sitzt.';
+  const fehler = [];
+  const buchst = 'ABCDEF';
+  function ansicht() {
+    let g = '';
+    for (let k = 0; k < FELDER; k++) {
+      const st = auf.get(k);
+      g += `<button type="button" data-k="${k}" class="${st || ''} ${k === ziel ? 'gewaehlt' : ''}" ${st || q ? 'disabled' : ''}>${st === 'treffer' ? '💥' : st === 'wasser' ? '🌊' : ''}</button>`;
+    }
+    box.innerHTML = `<span class="status">🎯 Treffer ${treffer}/${SCHIFFE} · Schüsse ${schuesse}</span>
+      <div class="karte"><div class="raster">${g}</div><p class="meldung zentriert">${info}</p></div>
+      ${q ? frageHtml(q) : ''}
+      ${q && q.antwort !== null ? '<div class="knopfreihe"><button class="btn-blau" id="weiter" type="button">Weiter</button></div>' : ''}`;
+  }
+  function feldName(k) { return buchst[Math.floor(k / 6)] + (k % 6 + 1); }
+  box.onclick = ev => {
+    const a = ev.target.closest('.antwort');
+    if (a && q && q.antwort === null) {
+      q.antwort = +a.dataset.n; gesamt++;
+      if (q.opts[q.antwort] === q.loesung) {
+        richtig++; schuesse++;
+        if (schiffe.has(ziel)) { auf.set(ziel, 'treffer'); treffer++; info = `<span class="ok">💥 Treffer auf ${feldName(ziel)}!</span>`; }
+        else { auf.set(ziel, 'wasser'); info = `🌊 Wasser auf ${feldName(ziel)}.`; }
+      } else { fehler.push(q.e.f + ' = ' + q.e.d); info = `<span class="bad">Kein Schuss – das Feld bleibt zu.</span>`; }
+      return ansicht();
+    }
+    const z = ev.target.closest('.raster button');
+    if (z && !q && !z.disabled) { ziel = +z.dataset.k; q = neueFrage(4); info = `Ziel: ${feldName(ziel)} – erst die Frage beantworten!`; return ansicht(); }
+    if (ev.target.closest('#weiter')) {
+      q = null; ziel = null;
+      if (treffer >= SCHIFFE) return fertig(richtig, gesamt, fehler, `Alle ${SCHIFFE} Schiffe versenkt mit ${schuesse} Schüssen.`);
+      info = 'Wähle das nächste Feld.'; ansicht();
+    }
+  };
+  ansicht();
+}
+
+function spielBrett(box, fertig) {
+  const ZIEL = 20, MAX = 30;
+  const EFFEKT = {5: 2, 8: -3, 11: 2, 13: -3, 16: 3, 18: -4};
+  const REIHEN = [[1, 2, 3, 4, 5], [10, 9, 8, 7, 6], [11, 12, 13, 14, 15], [20, 19, 18, 17, 16]];
+  let pos = 1, wurf = null, q = null, richtig = 0, fragen = 0, info = '';
+  const fehler = [];
+  function brett() {
+    return '<div class="brett">' + REIHEN.flat().map(n => {
+      const fx = EFFEKT[n];
+      const cls = n === 1 ? 'start' : n === ZIEL ? 'ziel' : fx > 0 ? 'bonus' : fx < 0 ? 'falle' : '';
+      const lab = n === 1 ? '🏁<span class="fx">Start</span>' : n === ZIEL ? '<span class="fx">🏆 Ziel</span>' : fx > 0 ? `<span class="fx">⭐ +${fx}</span>` : fx < 0 ? `<span class="fx">🕳️ ${fx}</span>` : '';
+      return `<div class="feld ${cls}">${n}${lab}${n === pos ? '<span class="figur"></span>' : ''}</div>`;
+    }).join('') + '</div>';
+  }
+  function ansicht() {
+    box.innerHTML = `<span class="status">Du: Feld ${pos}</span>
+      <div class="legende"><span>⭐ Bonusfeld: vorziehen</span><span>🕳️ Falle: zurück</span></div>
+      <p class="leise zentriert">Falsche Antwort: 2 Felder zurück</p>
+      ${brett()}
+      <div class="karte zentriert">
+        <div class="dran"><i></i> Du bist dran</div>
+        <div class="wuerfel">${wurf || '–'}</div><br>
+        <button class="btn-blau" id="wuerfeln" type="button" ${wurf ? 'disabled' : ''}>🎲 Würfeln</button>
+        ${wurf ? `<p><strong>Gewürfelt: ${wurf}. Richtig antworten = ${wurf} Felder vor!</strong></p>` : ''}
+        ${info ? `<p class="meldung">${info}</p>` : ''}
+      </div>
+      ${q ? frageHtml(q) : ''}
+      ${q && q.antwort !== null ? '<div class="knopfreihe"><button class="btn-blau" id="weiter" type="button">Weiter</button></div>' : ''}`;
+  }
+  box.onclick = ev => {
+    if (ev.target.closest('#wuerfeln') && !wurf) { wurf = 1 + Math.floor(Math.random() * 6); q = neueFrage(4); info = ''; return ansicht(); }
+    const a = ev.target.closest('.antwort');
+    if (a && q && q.antwort === null) {
+      q.antwort = +a.dataset.n; fragen++;
+      if (q.opts[q.antwort] === q.loesung) { richtig++; pos = Math.min(ZIEL, pos + wurf); info = `<span class="ok">Vor auf Feld ${pos}.</span>`; }
+      else { fehler.push(q.e.f + ' = ' + q.e.d); pos = Math.max(1, pos - 2); info = `<span class="bad">Zwei Felder zurück auf Feld ${pos}.</span>`; }
+      const fx = EFFEKT[pos];
+      if (fx) { pos = Math.min(ZIEL, Math.max(1, pos + fx)); info += fx > 0 ? ` ⭐ Bonus! Weiter auf Feld ${pos}.` : ` 🕳️ Falle! Zurück auf Feld ${pos}.`; }
+      return ansicht();
+    }
+    if (ev.target.closest('#weiter')) {
+      if (pos >= ZIEL || fragen >= MAX) return fertig(richtig, fragen, fehler, pos >= ZIEL ? `🏆 Ziel erreicht nach ${fragen} Fragen!` : `Endstand: Feld ${pos}`);
+      wurf = null; q = null; ansicht();
+    }
+  };
+  ansicht();
+}
+
+function spielSatz(box, fertig) {
+  const runden = rundenListe(Math.min(8, saetze.length), saetze);
+  let i = 0, punkte = 0, woerter = [], reihe = [], gew = [], gesperrt = false, fb = '';
+  const fehler = [];
+  function rendern() {
+    box.innerHTML = `<span class="status">Satz ${i + 1}/${runden.length} · ✓ ${punkte}</span>
+      <div class="karte zentriert">
+        <p class="leise">Bring die Wörter in die richtige Reihenfolge:</p>
+        <div class="slot">${woerter.map((_, k) => `<span style="font-size:1.1rem">${gew[k] !== undefined ? esc(reihe[gew[k]]) : ''}</span>`).join('')}</div>
+        <div class="kacheln">${reihe.map((w, k) => `<button class="wortchip" type="button" data-k="${k}" ${gew.includes(k) || gesperrt ? 'disabled' : ''}>${esc(w)}</button>`).join('')}</div>
+        <div class="knopfreihe">${gesperrt ? '<button class="btn-blau" id="weiter" type="button">Weiter</button>' : '<button class="btn-hell" id="loeschen" type="button">⌫ Zurück</button>'}</div>
+        <p class="meldung">${fb}</p>
+      </div>`;
+  }
+  function neueRunde() {
+    woerter = runden[i].split(/\s+/);
+    let r = shuffle(woerter), v = 0;
+    while (r.join(' ') === woerter.join(' ') && v++ < 10) r = shuffle(woerter);
+    reihe = r; gew = []; gesperrt = false; fb = ''; rendern();
+  }
+  function pruefe() {
+    gesperrt = true;
+    const satz = runden[i];
+    if (gew.map(k => reihe[k]).join(' ') === satz) { punkte++; fb = '<span class="ok">✓ Richtig!</span>'; }
+    else { fehler.push(satz); fb = `<span class="bad">✗ Leider falsch.</span> Richtig: ${esc(satz)}`; }
+    rendern();
+  }
+  function weiter() { i++; if (i >= runden.length) fertig(punkte, runden.length, fehler); else neueRunde(); }
+  box.onclick = ev => {
+    const w = ev.target.closest('.wortchip');
+    if (w && !gesperrt) { const k = +w.dataset.k; if (!gew.includes(k)) { gew.push(k); if (gew.length === woerter.length) pruefe(); else rendern(); } return; }
+    if (ev.target.closest('#loeschen') && gew.length) { gew.pop(); return rendern(); }
+    if (ev.target.closest('#weiter')) weiter();
+  };
+  aktiveTasten = ev => {
+    if (ev.key === 'Backspace' && !gesperrt && gew.length) { ev.preventDefault(); gew.pop(); rendern(); }
+    if (ev.key === 'Enter' && gesperrt) weiter();
+  };
+  neueRunde();
+}
+
+const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+function wendeThemeAn() {
+  const dunkel = themeModus === 'dunkel' || (themeModus === 'auto' && mq && mq.matches);
+  document.documentElement.classList.toggle('dunkel', dunkel);
+  zeigeThemeLabel();
+}
+function zeigeThemeLabel() {
+  const t = {auto: '🌓 Auto', hell: '☀️ Hell', dunkel: '🌙 Dunkel'}[themeModus];
+  document.querySelectorAll('[data-theme-btn]').forEach(b => { b.textContent = t; });
+}
+if (mq && mq.addEventListener) mq.addEventListener('change', wendeThemeAn);
+
+document.addEventListener('click', ev => {
+  if (ev.target.closest('[data-theme-btn]')) {
+    themeModus = {auto: 'hell', hell: 'dunkel', dunkel: 'auto'}[themeModus];
+    schreib(KEY_T, themeModus); wendeThemeAn(); return;
+  }
+  if (ev.target.closest('[data-liste]')) return zeige('liste');
+  const p = ev.target.closest('[data-pfeil]'); if (p) return schritt(+p.dataset.pfeil);
+  const a = ev.target.closest('.arena-karte'); if (a && !a.disabled) return startSpiel(a.dataset.id);
+});
+document.getElementById('start-liste').onclick = () => zeige('liste');
+document.getElementById('uebersicht').onclick = () => zeige('start');
+document.getElementById('txt-vok').addEventListener('input', zaehle);
+document.getElementById('txt-saetze').addEventListener('input', zaehle);
+document.getElementById('fertig').onclick = () => {
+  const v = document.getElementById('txt-vok').value, s = document.getElementById('txt-saetze').value;
+  const ok = schreib(KEY_V, v) && schreib(KEY_S, s);
+  vokabeln = parseVokabeln(v); saetze = parseSaetze(s); kopf();
+  if (!ok) { document.getElementById('liste-meldung').textContent = 'Speichern im Browser ist nicht möglich; die Liste gilt nur bis zum Neuladen.'; }
+  zeige('start');
+};
+document.getElementById('reset').onclick = () => {
+  entferne(KEY_V); entferne(KEY_S);
+  laden(); fuelleListe(); kopf();
+  document.getElementById('liste-meldung').textContent = 'Auf die Kursliste zurückgesetzt.';
+};
+document.addEventListener('keydown', ev => {
+  if (ev.target.closest && ev.target.closest('textarea,input')) return;
+  if (ev.key === 'ArrowRight') return schritt(1);
+  if (ev.key === 'ArrowLeft') return schritt(-1);
+  if (aktiveScreen === 'spiel' && aktiveTasten) aktiveTasten(ev);
+});
+let wx = null, wy = null;
+document.addEventListener('touchstart', ev => { if (ev.target.closest && ev.target.closest('textarea,input')) { wx = null; return; } wx = ev.touches[0].clientX; wy = ev.touches[0].clientY; }, {passive: true});
+document.addEventListener('touchend', ev => {
+  if (wx === null) return;
+  const dx = ev.changedTouches[0].clientX - wx, dy = ev.changedTouches[0].clientY - wy; wx = null;
+  if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.6) schritt(dx < 0 ? 1 : -1);
+}, {passive: true});
+
+(function () {
+  const M = QR_MATRIX.split(','), n = M.length, r = 2, size = n + 2 * r;
+  let d = '';
+  M.forEach((zeile, y) => { for (let x = 0; x < n; x++) if (zeile[x] === '1') d += `M${x + r},${y + r}h1v1h-1z`; });
+  document.getElementById('qr').innerHTML = `<svg viewBox="0 0 ${size} ${size}" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"><rect width="${size}" height="${size}" fill="#fff"/><path fill="#000" d="${d}"/></svg>`;
+})();
+themeModus = lies(KEY_T, 'auto');
+if (!['auto', 'hell', 'dunkel'].includes(themeModus)) themeModus = 'auto';
+laden(); kopf(); wendeThemeAn(); zeige('start');
+</script>
+</body>
+</html>
